@@ -26,7 +26,23 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    _checkAutoLogin();    // ✅ ADDED
     _loadRememberedUser();
+  }
+
+  // ✅ AUTO LOGIN FUNCTION (ADDED)
+  Future<void> _checkAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+
+    if (isLoggedIn && FirebaseAuth.instance.currentUser != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      });
+    }
   }
 
   Future<void> _loadRememberedUser() async {
@@ -40,16 +56,20 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  // UPDATED TO SAVE LOGIN STATE
   Future<void> _saveRememberMe() async {
     final prefs = await SharedPreferences.getInstance();
+
     if (_rememberMe) {
       await prefs.setBool('remember_me', true);
       await prefs.setString('saved_email', emailAddress.text.trim());
       await prefs.setString('saved_password', password.text.trim());
+      await prefs.setBool('is_logged_in', true);  // ✅ ADDED
     } else {
       await prefs.setBool('remember_me', false);
       await prefs.remove('saved_email');
       await prefs.remove('saved_password');
+      await prefs.setBool('is_logged_in', false); // ✅ ADDED
     }
   }
 
@@ -65,6 +85,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (user != null) {
       await _saveRememberMe();
+
+      // ✅ Save login session
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_logged_in', true);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -84,6 +109,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoadingLogin = false);
 
     if (user != null) {
+      // ✅ Save login session
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_logged_in', true);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -105,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Email validation
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Enter a valid email')),
@@ -171,7 +199,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
 
-              // Email
               TextField(
                 controller: emailAddress,
                 decoration: InputDecoration(
@@ -191,7 +218,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Password
               TextField(
                 controller: password,
                 obscureText: !_isPasswordVisible,
@@ -220,7 +246,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 8),
 
-              // Remember me + Reset password
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -257,7 +282,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Login button
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -277,7 +301,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // OR Divider
               Row(
                 children: const [
                   Expanded(
@@ -294,7 +317,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Google login
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -320,7 +342,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Sign Up
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
