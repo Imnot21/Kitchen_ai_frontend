@@ -12,7 +12,28 @@
           "package_name": "com.example.kitchen_ai_asf"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "812519874488-86fifquiimlm7sc7ch6sobq7924q2lqo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kitchen_ai_asf",
+            "certificate_hash": "46d39c021374a05fd0c8fb314447b06c57c438a1"
+          }
+        },
+        {
+          "client_id": "812519874488-c8iukkuonkitd733l5b636i9jtn0gs6c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kitchen_ai_asf",
+            "certificate_hash": "3bee1784b83996b6bf88eac4ccbd25dfbac964b9"
+          }
+        },
+        {
+          "client_id": "812519874488-ckh5pk0lrekfsh5ms8ssoj45mcctbm2i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC2Tin165XxBIu2VDeZ9fadoD14uCUgJ0I"
@@ -20,7 +41,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "812519874488-ckh5pk0lrekfsh5ms8ssoj45mcctbm2i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "812519874488-vmjjgehsrfu9vnkbvotfojih96ek9p9c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kitchenAiAsf"
+              }
+            }
+          ]
         }
       }
     }
