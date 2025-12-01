@@ -2,7 +2,7 @@
     package="com.example.kitchen_ai_asf">
 
     <application
-        android:label="kitchen_ai_asf"
+        android:label="Ninong r.AI"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

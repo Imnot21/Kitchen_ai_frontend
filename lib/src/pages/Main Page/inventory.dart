@@ -45,41 +45,56 @@ class _FavoritesTabState extends State<FavoritesTab> {
             maxWidth: 900,
           ),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color:  Color.fromARGB(255, 255, 242, 220),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: favoriteRecipes.isEmpty
-              ? Text(
-                  "No favorite recipes yet.",
-                  style: GoogleFonts.inter(fontSize: 16),
-                )
-              : ListView.builder(
-                  itemCount: favoriteRecipes.length,
-                  itemBuilder: (context, index) {
-                    final recipe = favoriteRecipes[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              recipe,
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Color.fromARGB(255, 44, 72, 61)
+
+          child: RefreshIndicator(
+            onRefresh: _loadFavorites,
+
+            child: favoriteRecipes.isEmpty
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      const SizedBox(height: 200),
+                      Center(
+                        child: Text(
+                          "No favorite recipes yet.",
+                          style: GoogleFonts.inter(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  )
+
+                : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: favoriteRecipes.length,
+                    itemBuilder: (context, index) {
+                      final recipe = favoriteRecipes[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                recipe,
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: const Color.fromARGB(255, 44, 72, 61),
+                                ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _removeFavorite(recipe),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _removeFavorite(recipe),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
         ),
       ),
     );

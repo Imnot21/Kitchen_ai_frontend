@@ -89,7 +89,7 @@ class _RecipesTabState extends State<RecipesTab> {
             maxWidth: 900,
           ),
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 255, 255, 255),
+            color: const  Color.fromARGB(255, 255, 242, 220),
             borderRadius: BorderRadius.circular(12),
           ),
           child: SingleChildScrollView(
