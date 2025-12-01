@@ -15,9 +15,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 1;
 
-  
   String _recipeText = '';
   bool _recipeEnabled = true;
+
+  // Example user data - replace with your user management
+  final String userName = 'Adam Christopher M. Peras';
+  final String userEmail = 'azazeljim69@gmail.com';
 
   final List<String> _titles = ['Favorites', 'Fridge', 'Recipes', 'Profile'];
 
@@ -27,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  // nagshshow ng recipe tab kapag may nagenerate na recipe galing sa planner
+  // Show recipe tab with generated recipe text
   void _enableAndShowRecipe(String text) {
     setState(() {
       _recipeText = text;
@@ -40,13 +43,10 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final pages = <Widget>[
       const FavoritesTab(),
-      const Planner(onRecipeGenerated: null),
+      Planner(onRecipeGenerated: _enableAndShowRecipe),  // Pass callback here
       RecipesTab(recipeText: _recipeText),
-      Logout()
+      ProfilePage(userName: userName, userEmail: userEmail),  // No extra ()
     ];
-
-    
-    pages[1] = Planner(onRecipeGenerated: _enableAndShowRecipe);
 
     return Scaffold(
       appBar: Appbar(title: _titles[_selectedIndex]),
@@ -58,4 +58,5 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-} 
+}
+

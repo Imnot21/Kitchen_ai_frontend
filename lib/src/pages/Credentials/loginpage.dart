@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'resetpassword.dart';
 import 'signuppage.dart';
 import '../../screen/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../services/authservices.dart'; 
+import '../../../services/authservices.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +20,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
-  bool _isLoading = false;
+  bool _isLoadingLogin = false;
+  bool _isLoadingReset = false;
 
   @override
   void initState() {
@@ -29,13 +29,10 @@ class _LoginScreenState extends State<LoginScreen> {
     _loadRememberedUser();
   }
 
-  // Load saved credentials + checkbox
   Future<void> _loadRememberedUser() async {
     final prefs = await SharedPreferences.getInstance();
-
     setState(() {
       _rememberMe = prefs.getBool('remember_me') ?? false;
-
       if (_rememberMe) {
         emailAddress.text = prefs.getString('saved_email') ?? "";
         password.text = prefs.getString('saved_password') ?? "";
@@ -43,10 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  //  Save credentials if checkbox is ON
   Future<void> _saveRememberMe() async {
     final prefs = await SharedPreferences.getInstance();
-
     if (_rememberMe) {
       await prefs.setBool('remember_me', true);
       await prefs.setString('saved_email', emailAddress.text.trim());
@@ -58,20 +53,18 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  //  EMAIL LOGIN
   void _loginWithEmail() async {
-    setState(() => _isLoading = true);
+    setState(() => _isLoadingLogin = true);
 
     final User? user = await _authService.signInWithEmail(
       emailAddress.text.trim(),
       password.text.trim(),
     );
 
-    setState(() => _isLoading = false);
+    setState(() => _isLoadingLogin = false);
 
     if (user != null) {
-      await _saveRememberMe(); // SAVE LOGIN IF SUCCESSFUL
-
+      await _saveRememberMe();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -83,13 +76,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // 🔥 GOOGLE LOGIN
   void _loginWithGoogle() async {
-    setState(() => _isLoading = true);
+    setState(() => _isLoadingLogin = true);
 
     final User? user = await _authService.signInWithGoogle();
 
-    setState(() => _isLoading = false);
+    setState(() => _isLoadingLogin = false);
 
     if (user != null) {
       Navigator.pushReplacement(
@@ -97,8 +89,47 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (_) => const MainScreen()),
       );
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Google login failed.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Google login failed.')),
+      );
+    }
+  }
+
+  Future<void> _resetPassword() async {
+    final email = emailAddress.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email first')),
+      );
+      return;
+    }
+
+    // Email validation
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid email')),
+      );
+      return;
+    }
+
+    setState(() => _isLoadingReset = true);
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password reset email sent to $email. Check your inbox!'),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = 'Failed to send reset email';
+      if (e.code == 'user-not-found') {
+        message = 'No user found with this email';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      setState(() => _isLoadingReset = false);
     }
   }
 
@@ -140,36 +171,27 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
 
-              // Email field
+              // Email
               TextField(
                 controller: emailAddress,
                 decoration: InputDecoration(
-                  hintText: "Username",
+                  hintText: "Email",
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 16,
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE9B44C),
-                      width: 1.5,
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFFE9B44C), width: 1.5),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2D4739),
-                      width: 1.8,
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFF2D4739), width: 1.8),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Password field
+              // Password
               TextField(
                 controller: password,
                 obscureText: !_isPasswordVisible,
@@ -177,43 +199,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: "Password",
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 16,
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE9B44C),
-                      width: 1.5,
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFFE9B44C), width: 1.5),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2D4739),
-                      width: 1.8,
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFF2D4739), width: 1.8),
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                       color: Colors.grey[700],
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
+                    onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                   ),
                 ),
               ),
 
               const SizedBox(height: 8),
 
-              // Remember me + Reset Password
+              // Remember me + Reset password
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -224,32 +231,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         value: _rememberMe,
                         onChanged: (val) {
                           setState(() => _rememberMe = val ?? false);
-                          _saveRememberMe(); // SAVE IMMEDIATELY
+                          _saveRememberMe();
                         },
                       ),
                       const Text(
                         "Remember me",
-                        style: TextStyle(
-                          color: Color(0xFF244B38),
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(color: Color(0xFF244B38), fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
                   TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => Resetpassword()),
-                      );
-                    },
-                    child: const Text(
-                      "Reset password",
-                      style: TextStyle(
-                        color: Color(0xFF244B38),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    onPressed: _isLoadingReset ? null : _resetPassword,
+                    child: _isLoadingReset
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            "Reset password",
+                            style: TextStyle(color: Color(0xFF244B38), fontWeight: FontWeight.w600),
+                          ),
                   ),
                 ],
               ),
@@ -262,20 +264,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF244B38),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                   ),
-                  onPressed: _isLoading ? null : _loginWithEmail,
-                  child: _isLoading
+                  onPressed: _isLoadingLogin ? null : _loginWithEmail,
+                  child: _isLoadingLogin
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           "Log In",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
                         ),
                 ),
               ),
@@ -285,48 +281,30 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 children: const [
                   Expanded(
-                    child: Divider(
-                      color: Color(0xFFE8B97B),
-                      thickness: 1,
-                      indent: 20,
-                      endIndent: 10,
-                    ),
+                    child: Divider(color: Color(0xFFE8B97B), thickness: 1, indent: 20, endIndent: 10),
                   ),
                   Text(
                     "OR",
-                    style: TextStyle(
-                      color: Color(0xFF244B38),
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(color: Color(0xFF244B38), fontWeight: FontWeight.w600),
                   ),
                   Expanded(
-                    child: Divider(
-                      color: Color(0xFFE8B97B),
-                      thickness: 1,
-                      indent: 10,
-                      endIndent: 20,
-                    ),
+                    child: Divider(color: Color(0xFFE8B97B), thickness: 1, indent: 10, endIndent: 20),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
 
-              // Google login button
+              // Google login
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFFE8B97B),
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
+                    side: const BorderSide(color: Color(0xFFE8B97B), width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                   ),
-                  onPressed: _isLoading ? null : _loginWithGoogle,
+                  onPressed: _isLoadingLogin ? null : _loginWithGoogle,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -334,11 +312,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(width: 12),
                       const Text(
                         "Log In with Google",
-                        style: TextStyle(
-                          color: Color(0xFF244B38),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(color: Color(0xFF244B38), fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -346,24 +320,19 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Sign Up link
+              // Sign Up
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
                     "Don’t have an account? ",
-                    style: TextStyle(
-                      color: Color(0xFF244B38),
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(color: Color(0xFF244B38), fontWeight: FontWeight.w500),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SignUpPage()),
-                      );
-                    },
+                    onTap: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SignUpPage()),
+                    ),
                     child: const Text(
                       "Sign Up",
                       style: TextStyle(
