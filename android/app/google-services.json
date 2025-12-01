@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "812519874488",
+    "project_id": "kitchen-ai-asf",
+    "storage_bucket": "kitchen-ai-asf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:812519874488:android:33485ee4501373f795794d",
+        "android_client_info": {
+          "package_name": "com.example.kitchen_ai_asf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2Tin165XxBIu2VDeZ9fadoD14uCUgJ0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
