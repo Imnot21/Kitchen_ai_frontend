@@ -99,7 +99,9 @@ class _RecipesTabState extends State<RecipesTab> {
                   ? [
                       Text(
                         'No recipes yet. Generate one from the Planner tab.',
-                        style: GoogleFonts.inter(fontSize: 16, color: Color.fromARGB(255, 44, 72, 61)),
+                        style: GoogleFonts.inter(fontSize: 16,
+                         color:
+                         Color.fromARGB(255, 44, 72, 61)),
                       )
                     ]
                   : recipes.map((r) {
@@ -114,7 +116,8 @@ class _RecipesTabState extends State<RecipesTab> {
                                 r,
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: 18,
+                                  color: const Color.fromARGB(255, 44, 72, 61)
                                 ),
                               ),
                             ),

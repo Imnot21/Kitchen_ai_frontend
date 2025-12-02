@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../core/export.dart';
-import '../pages/Main Page/Logout.dart';
-import '../pages/Main Page/inventory.dart';
-import '../pages/Main Page/planner.dart';
-import '../pages/Main Page/recipe.dart';
+import 'package:practice_application/src/core/export.dart';
+import 'package:practice_application/src/pages/Main Page/Logout.dart';
+import 'package:practice_application/src/pages/Main Page/ingredients.dart';
+import 'package:practice_application/src/pages/Main Page/inventory.dart';
+import 'package:practice_application/src/pages/Main Page/planner.dart';
+import 'package:practice_application/src/pages/Main Page/recipe.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,16 +14,21 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 2; // Planner tab shown first
 
   String _recipeText = '';
   bool _recipeEnabled = true;
 
-  // Example user data - replace with your user management
   final String userName = 'Adam Christopher M. Peras';
   final String userEmail = 'azazeljim69@gmail.com';
 
-  final List<String> _titles = ['Favorites', 'Fridge', 'Recipes', 'Profile'];
+  final List<String> _titles = [
+    'Ingredients',
+    'Favorites',
+    'Planner',
+    'Recipes',
+    'Profile',
+  ];
 
   void _onTap(int index) {
     setState(() {
@@ -30,22 +36,22 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  // Show recipe tab with generated recipe text
   void _enableAndShowRecipe(String text) {
     setState(() {
       _recipeText = text;
       _recipeEnabled = true;
-      _selectedIndex = 2;
+      _selectedIndex = 3; // Switch to Recipes tab
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      const FavoritesTab(),
-      Planner(onRecipeGenerated: _enableAndShowRecipe),  // Pass callback here
-      RecipesTab(recipeText: _recipeText),
-      ProfilePage(userName: userName, userEmail: userEmail),  // No extra ()
+      IngredientsTab(),                                   // 0
+      const FavoritesTab(),                               // 1
+      Planner(onRecipeGenerated: _enableAndShowRecipe),   // 2
+      RecipesTab(recipeText: _recipeText),                // 3
+      ProfilePage(userName: userName, userEmail: userEmail), // 4
     ];
 
     return Scaffold(
@@ -59,4 +65,3 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
-

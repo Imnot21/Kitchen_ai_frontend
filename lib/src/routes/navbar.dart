@@ -38,11 +38,20 @@ class Navbar extends StatelessWidget {
         onTap(index);
       },
       items: [
+          BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            'assets/icons/ingredients.svg',
+            width: 30,
+            height: 30,
+            color: Color.fromARGB(255, 44, 72, 61),
+          ),
+          label: 'Ingrdnts',
+        ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
             'assets/icons/heart.svg',
-            width: 40,
-            height: 40,
+            width: 30,
+            height: 30,
             color: const Color.fromARGB(255, 44, 72, 61),
           ),
           label: 'Favorites',
@@ -50,8 +59,8 @@ class Navbar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
             'assets/icons/planner.svg',
-            width: 40,
-            height: 40,
+            width: 30,
+            height: 30,
             color: const Color.fromARGB(255, 44, 72, 61),
           ),
           label: 'Planner',
@@ -59,8 +68,8 @@ class Navbar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
             'assets/icons/chef-svgrepo-com.svg',
-            width: 40,
-            height: 40,
+            width: 30,
+            height: 30,
             color: Color.fromARGB(255, 44, 72, 61),
           ),
           label: 'Recipe',
@@ -68,11 +77,13 @@ class Navbar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(
             Icons.account_circle_outlined,
-            size: 40,
+            size: 30,
             color: Color.fromARGB(255, 44, 72, 61),
           ),
           label: 'Profile',
         ),
+      
+        
       ],
     );
   }

@@ -140,12 +140,13 @@ class _PlannerState extends State<Planner> {
                             context: context,
                             controller: controller,
                             setGeneratingTrue: () => setState(() => generating = true),
-                            onGenerated: (recipeText) {
-                              // forward to MainScreen via provided callback
-                              if (widget.onRecipeGenerated != null) {
-                                widget.onRecipeGenerated!(recipeText);
-                              }
-                            },
+                           onGenerated: (ingredients, recipes) {
+             
+              if (widget.onRecipeGenerated != null) {
+              
+                widget.onRecipeGenerated!(recipes);
+              }
+            },
                           ).whenComplete(() {
                             if (mounted) setState(() => generating = false);
                           });

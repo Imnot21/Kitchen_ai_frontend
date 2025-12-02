@@ -10,23 +10,47 @@ class AIService {
     );
   }
 
-  static Future<String?> generateRecipe(XFile image) async {
+  /// Returns a Map with two keys: 'ingredients' and 'recipes'
+  static Future<Map<String, String?>> generateRecipe(XFile image) async {
     await initializeFirebase();
 
-    final model =
-        FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
-
+    final model = FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
     final imageBytes = await image.readAsBytes();
+    final imagePart = InlineDataPart(image.mimeType ?? 'image/jpeg', imageBytes);
 
-    final prompt = TextPart("""
-You are a professional chef and food recognition expert.
+    // -----------------------------
+    // Step 1: Extract ingredients
+    // -----------------------------
+    final ingredientsPrompt = TextPart("""
+You are a professional food recognition AI.
 
-Analyze the uploaded image carefully.
+Analyze the uploaded image and **list all visible ingredients only** in a simple comma-separated format.
+If no food or ingredients are visible, reply with:
+❌ "Please take another picture that contains food or ingredients."
+""");
 
-1. **If the image contains food, ingredients, or a meal:**
-   - Identify the visible ingredients.
-   - Generate **5 unique cooking recipes** that can be made using those ingredients.
-   - Follow this exact format for each recipe:
+    final ingredientsResponse = await model.generateContent([
+      Content.multi([ingredientsPrompt, imagePart])
+    ]);
+
+    final detectedIngredients = ingredientsResponse.text?.trim();
+
+    // If the AI says there’s no food, return immediately
+    if (detectedIngredients == null || detectedIngredients.startsWith('❌')) {
+      return {
+        'ingredients': null,
+        'recipes': detectedIngredients, // Contains the warning message
+      };
+    }
+
+    // -----------------------------
+    // Step 2: Generate recipes
+    // -----------------------------
+    final recipesPrompt = TextPart("""
+You are a professional chef and food expert.
+
+Using the following ingredients: $detectedIngredients, generate **5 unique cooking recipes**.
+Follow this exact format for each recipe:
 
 --------------------------
 🍽️ **RECIPE 1: [Name of Dish]**
@@ -45,27 +69,20 @@ Analyze the uploaded image carefully.
 **TIP (💡):** [Helpful tip or variation]
 --------------------------
 
-2. **If the image does NOT contain food or ingredients** (for example, if it shows a human, an object, an animal, a landscape, etc.):
-   - Do NOT generate recipes.
-   - Instead, reply with this message only:
-
-❌ "Please take another picture that contains food or ingredients. I can only generate recipes from food images."
-
 Rules:
 - Do not include explanations or extra descriptions.
-- Do not mix both recipes and the warning message — output one or the other.
-- Keep the formatting consistent and visually appealing for app display.
+- Keep the formatting consistent and visually appealing.
 """);
-    
 
-    final imagePart = InlineDataPart(image.mimeType ?? 'image/jpeg', imageBytes);
-
-    final response = await model.generateContent([
-      Content.multi([prompt, imagePart])
+    final recipesResponse = await model.generateContent([
+      Content.multi([recipesPrompt])
     ]);
 
-  final recipeText = response.text ?? "Try another image!";
+    final generatedRecipes = recipesResponse.text?.trim();
 
-    return recipeText;
+    return {
+      'ingredients': detectedIngredients,
+      'recipes': generatedRecipes,
+    };
   }
 }

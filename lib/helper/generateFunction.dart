@@ -1,15 +1,12 @@
-
 import 'package:flutter/material.dart';
 import '../services/airesponse.dart'; 
 import '../services/filePickerController.dart';
-
- 
 
 Future<void> handleRecipeGeneration({
   required BuildContext context,
   required Controller controller,
   required VoidCallback setGeneratingTrue,
-  required void Function(String) onGenerated, // new callback
+  required void Function(String ingredients, String recipes) onGenerated, // updated callback
 }) async {
   if (controller.selectedImage == null) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -22,17 +19,34 @@ Future<void> handleRecipeGeneration({
 
   setGeneratingTrue();
 
-  final recipeText = await AIService.generateRecipe(
-    controller.selectedImage!,
-  );
+  try {
+    final result = await AIService.generateRecipe(controller.selectedImage!);
 
-  if (recipeText != null) {
-    // instead of pushing a new route, forward recipe to the caller
-    onGenerated(recipeText);
-  } else {
+    if (result != null) {
+      final ingredients = result['ingredients'] ?? '';
+      final recipes = result['recipes'] ?? '';
+
+      // Handle non-food images
+      if (recipes.startsWith('❌')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(recipes)),
+        );
+        return;
+      }
+
+      // Forward both ingredients and recipes to your planner or UI
+      onGenerated(ingredients, recipes);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to generate recipe."),
+        ),
+      );
+    }
+  } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Failed to generate recipe."),
+      SnackBar(
+        content: Text("Error generating recipe: $e"),
       ),
     );
   }
