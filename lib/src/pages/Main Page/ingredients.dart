@@ -18,14 +18,12 @@ class _IngredientsTabState extends State<IngredientsTab> {
     _loadIngredients();
   }
 
-  // Load ingredients from SharedPreferences
   Future<void> _loadIngredients() async {
     final prefs = await SharedPreferences.getInstance();
     ingredientsList = prefs.getStringList('ingredientsList') ?? [];
     setState(() {});
   }
 
-  // Remove a specific ingredient from the list
   Future<void> _removeIngredient(String ingredient) async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -47,23 +45,32 @@ class _IngredientsTabState extends State<IngredientsTab> {
             maxWidth: 900,
           ),
           decoration: BoxDecoration(
-            color:  Color.fromARGB(255, 255, 242, 220),
+            color: const Color.fromARGB(255, 255, 242, 220),
             borderRadius: BorderRadius.circular(12),
           ),
           child: RefreshIndicator(
             onRefresh: _loadIngredients,
             child: ingredientsList.isEmpty
-                ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 200),
-                      Center(
-                        child: Text(
-                          "No ingredients available.",
-                          style: GoogleFonts.inter(fontSize: 16),
+                ? LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints:
+                              BoxConstraints(minHeight: constraints.maxHeight),
+                          child: Center(
+                            child: Text(
+                              "No ingredients available.",
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                color: const Color.fromARGB(255, 44, 72, 61),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   )
                 : ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -73,6 +80,7 @@ class _IngredientsTabState extends State<IngredientsTab> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Text(

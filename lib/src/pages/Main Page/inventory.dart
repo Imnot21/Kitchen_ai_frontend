@@ -52,19 +52,27 @@ class _FavoritesTabState extends State<FavoritesTab> {
           child: RefreshIndicator(
             onRefresh: _loadFavorites,
 
-            child: favoriteRecipes.isEmpty
-                ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 200),
-                      Center(
-                        child: Text(
-                          "No favorite recipes yet.",
-                          style: GoogleFonts.inter(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  )
+    child: favoriteRecipes.isEmpty
+    ? RefreshIndicator(
+        onRefresh: _loadFavorites,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.65,
+            child: Center(
+              child: Text(
+                "No favorite recipes yet.",
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: Color.fromARGB(255, 44, 72, 61),
+                ),
+              ),
+            ),
+          ),
+        ),
+      )
+
+
 
                 : ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
