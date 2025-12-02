@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   String _recipeText = '';
   bool _recipeEnabled = true;
 
-  final String userName = 'Adam Christopher M. Peras';
+  final String userName = 'Darwin';
   final String userEmail = 'azazeljim69@gmail.com';
 
   final List<String> _titles = [
