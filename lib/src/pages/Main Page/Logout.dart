@@ -3,23 +3,26 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   final String userName;
   final String userEmail;
+  final String bio; // Added
+  final String phone; // Added
 
   const ProfilePage({
     super.key,
     required this.userName,
     required this.userEmail,
+    this.bio = '',
+    this.phone = '',
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF2DC), // Soft background color
-
-      // No AppBar here — universal app bar will be used
+      backgroundColor: const Color(0xFFFFF2DC),
 
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Profile Picture with Edit Icon
             Stack(
@@ -87,7 +90,43 @@ class ProfilePage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
+
+            // Bio
+            if (bio.isNotEmpty)
+              Column(
+                children: [
+                  Text(
+                    bio,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF244B38),
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+
+            // Phone
+            if (phone.isNotEmpty)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.phone, color: Color(0xFF244B38)),
+                  const SizedBox(width: 8),
+                  Text(
+                    phone,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF244B38),
+                    ),
+                  ),
+                ],
+              ),
+
+            if (phone.isNotEmpty) const SizedBox(height: 32),
 
             // Edit Profile Button
             SizedBox(
@@ -118,7 +157,7 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Logout Button (styled like Edit Profile button)
+            // Logout Button (unchanged)
             SizedBox(
               width: double.infinity,
               height: 50,
