@@ -53,7 +53,7 @@ Using the following ingredients: $detectedIngredients, generate **5 unique cooki
 Follow this exact format for each recipe:
 
 --------------------------
-🍽️ **RECIPE 1: [Name of Dish]**
+🍽️ **[Name of Dish]**
 
 **MAIN INGREDIENTS (🧄):** [Main items]  
 **INGREDIENTS (🥕):**  

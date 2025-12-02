@@ -30,21 +30,20 @@ class _RecipesTabState extends State<RecipesTab> {
     }
   }
 
+  // 🔥 FIXED — now splitting using your actual Gemini format
   Future<void> _splitRecipes() async {
     final text = widget.recipeText.trim();
-    final regex = RegExp(r'(?=\*\*?Recipe\s*\d+[:\-\s])', caseSensitive: false);
-    final parts = text
-        .split(regex)
-        .map((p) => p.trim())
-        .where((p) => p.isNotEmpty && p != "*" && p != "-")
-        .toList();
 
-    if (parts.isEmpty) {
-      recipes = text.isEmpty ? [] : [text];
+    if (text.isEmpty) {
+      recipes = [];
     } else {
-      if (!parts.first.toLowerCase().startsWith("recipe")) {
-        parts.removeAt(0);
-      }
+      // Split by lines of "--------------------------"
+      final parts = text
+          .split(RegExp(r'-{10,}'))
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+
       recipes = parts;
     }
 
@@ -89,7 +88,7 @@ class _RecipesTabState extends State<RecipesTab> {
             maxWidth: 900,
           ),
           decoration: BoxDecoration(
-            color: const  Color.fromARGB(255, 255, 242, 220),
+            color: const Color.fromARGB(255, 255, 242, 220),
             borderRadius: BorderRadius.circular(12),
           ),
           child: SingleChildScrollView(
@@ -99,13 +98,15 @@ class _RecipesTabState extends State<RecipesTab> {
                   ? [
                       Text(
                         'No recipes yet. Generate one from the Planner tab.',
-                        style: GoogleFonts.inter(fontSize: 16,
-                         color:
-                         Color.fromARGB(255, 44, 72, 61)),
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: const Color.fromARGB(255, 44, 72, 61),
+                        ),
                       )
                     ]
-                  : recipes.map((r) {
-                      final isFav = _isFavorite(r);
+                  : recipes.map((recipe) {
+                      final isFav = _isFavorite(recipe);
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Row(
@@ -113,20 +114,23 @@ class _RecipesTabState extends State<RecipesTab> {
                           children: [
                             Expanded(
                               child: Text(
-                                r,
+                                recipe,
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
-                                  color: const Color.fromARGB(255, 44, 72, 61)
+                                  color:
+                                      const Color.fromARGB(255, 44, 72, 61),
                                 ),
                               ),
                             ),
                             IconButton(
                               icon: Icon(
-                                isFav ? Icons.favorite : Icons.favorite_border,
+                                isFav
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
                                 color: isFav ? Colors.red : Colors.grey,
                               ),
-                              onPressed: () => _toggleFavorite(r),
+                              onPressed: () => _toggleFavorite(recipe),
                             ),
                           ],
                         ),
